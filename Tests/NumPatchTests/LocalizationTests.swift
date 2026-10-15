@@ -43,6 +43,17 @@ final class LocalizationTests: XCTestCase {
         )
     }
 
+    func testIncompleteAppResourceBundleFallsBackToSwiftPMResources() throws {
+        let englishOnly = try XCTUnwrap(Localization.bundles[.english])
+        let resources = Localization.resourceBundle(primary: englishOnly)
+
+        for language in AppLanguage.allCases {
+            XCTAssertNotNil(Localization.bundle(for: language, pathForResource: {
+                resources.path(forResource: $0, ofType: "lproj")
+            }))
+        }
+    }
+
     func testBundledTranslationsHaveMatchingKeysAndPlaceholders() throws {
         let tables = try AppLanguage.allCases.map { language -> [String: String] in
             let url = try XCTUnwrap(Localization.bundles[language]?.url(forResource: "Localizable", withExtension: "strings"))

@@ -26,10 +26,17 @@ final class Localization: ObservableObject {
     // Prefer the standard app resource location. Older SwiftPM accessors only
     // check beside the executable; this also works after moving the app.
     private static let resources: Bundle = {
-        if let url = Bundle.main.url(forResource: "NumPatch_NumPatch", withExtension: "bundle"),
-           let bundle = Bundle(url: url) { return bundle }
-        return Bundle.module
+        let appResources = Bundle.main.url(forResource: "NumPatch_NumPatch", withExtension: "bundle")
+            .flatMap(Bundle.init(url:))
+        return resourceBundle(primary: appResources, fallback: Bundle.module)
     }()
+    static func resourceBundle(primary: Bundle?, fallback: Bundle = Bundle.module) -> Bundle {
+        guard let primary,
+              AppLanguage.allCases.allSatisfy({ bundle(for: $0, in: primary) != nil }) else {
+            return fallback
+        }
+        return primary
+    }
     static func bundle(for language: AppLanguage, pathForResource: (String) -> String?) -> Bundle? {
         let canonical = Locale(identifier: language.rawValue).identifier
         let candidates = [
@@ -46,11 +53,14 @@ final class Localization: ObservableObject {
         return nil
     }
     private static func bundle(for language: AppLanguage) -> Bundle? {
+        bundle(for: language, in: resources)
+    }
+    private static func bundle(for language: AppLanguage, in resources: Bundle) -> Bundle? {
         bundle(for: language) { resources.path(forResource: $0, ofType: "lproj") }
     }
     static let bundles: [AppLanguage: Bundle] = {
         var result = AppLanguage.allCases.reduce(into: [AppLanguage: Bundle]()) { result, language in
-            if let bundle = bundle(for: language) {
+            if let bundle = bundle(for: language, in: resources) {
                 result[language] = bundle
             }
         }
