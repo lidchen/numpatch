@@ -1,0 +1,22 @@
+name: Bug report / 问题反馈
+description: Report an input, layout, or compatibility issue / 反馈输入、布局或兼容性问题
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 使用环境
+      description: macOS version, Mac/trackpad model, NumPatch version, target application and keymap.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      description: Include expected and actual behavior. Is this a tap, physical click, or two-finger secondary click?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context / 补充说明
+      description: Relevant settings or screenshots. Please omit private input recordings and calibration exports.

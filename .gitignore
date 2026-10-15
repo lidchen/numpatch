@@ -1,0 +1,18 @@
+# Build products and local SwiftPM state
+.build/
+dist/
+.swiftpm/
+.DS_Store
+
+# Device captures, calibration exports, and private working notes
+diagnostics/
+docs/private/
+*.log
+
+# Local signing credentials and configuration
+.env
+.env.*
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
