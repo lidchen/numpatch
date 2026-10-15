@@ -30,7 +30,7 @@ The wizard collects three taps and three physical presses only inside its target
 
 The private touch ABI is system- and device-dependent. Unit tests cannot establish compatibility with every trackpad, tap-drag setting, external mouse, or target application. Real hardware testing remains necessary. Local development signing is not Developer ID distribution signing or notarization.
 
-API references: [event tap options](https://developer.apple.com/documentation/coregraphics/cgeventtapoptions), [session event tap](https://developer.apple.com/documentation/coregraphics/cgeventtaplocation/cgsessioneventtap). Private ABI attribution is in [THIRD_PARTY_LICENSES.txt](../THIRD_PARTY_LICENSES.txt).
+API references: [event tap options](https://developer.apple.com/documentation/coregraphics/cgeventtapoptions), [session event tap](https://developer.apple.com/documentation/coregraphics/cgeventtaplocation/cgsessioneventtap).
 
 ## Menu bar lifecycle and shortcuts
 

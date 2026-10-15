@@ -14,7 +14,6 @@ if [[ ! -d "$resource_bundle" ]]; then
 fi
 rm -rf "$APP/Contents/Resources/NumPatch_NumPatch.bundle"
 cp -R "$resource_bundle" "$APP/Contents/Resources/"
-cp THIRD_PARTY_LICENSES.txt "$APP/Contents/Resources/ThirdPartyLicenses.txt"
 swift scripts/make-icon.swift "$PWD/.build/AppIcon.iconset"
 iconutil -c icns "$PWD/.build/AppIcon.iconset" -o "$APP/Contents/Resources/AppIcon.icns"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
