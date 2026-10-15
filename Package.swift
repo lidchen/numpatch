@@ -7,7 +7,14 @@ let package = Package(
     products: [.executable(name: "NumPatch", targets: ["NumPatch"])],
     targets: [
         .target(name: "TouchBridge", linkerSettings: [.linkedLibrary("dl")]),
-        .executableTarget(name: "NumPatch", dependencies: ["TouchBridge"], resources: [.process("Resources")]),
+        .executableTarget(
+            name: "NumPatch",
+            dependencies: ["TouchBridge"],
+            resources: [
+                .copy("Resources/en.lproj"),
+                .copy("Resources/zh-Hans.lproj")
+            ]
+        ),
         .testTarget(name: "NumPatchTests", dependencies: ["NumPatch"])
     ]
 )
