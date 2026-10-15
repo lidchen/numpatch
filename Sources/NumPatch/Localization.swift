@@ -30,12 +30,41 @@ final class Localization: ObservableObject {
            let bundle = Bundle(url: url) { return bundle }
         return Bundle.module
     }()
-    static let bundles: [AppLanguage: Bundle] = Dictionary(uniqueKeysWithValues: AppLanguage.allCases.map {
-        ($0, Bundle(path: resources.path(forResource: $0.rawValue, ofType: "lproj")!)!)
-    })
+    static func bundle(for language: AppLanguage, pathForResource: (String) -> String?) -> Bundle? {
+        let canonical = Locale(identifier: language.rawValue).identifier
+        let candidates = [
+            language.rawValue,
+            canonical,
+            canonical.replacingOccurrences(of: "_", with: "-"),
+            canonical.replacingOccurrences(of: "-", with: "_")
+        ]
+        for candidate in candidates {
+            guard let path = pathForResource(candidate),
+                  let bundle = Bundle(path: path) else { continue }
+            return bundle
+        }
+        return nil
+    }
+    private static func bundle(for language: AppLanguage) -> Bundle? {
+        bundle(for: language) { resources.path(forResource: $0, ofType: "lproj") }
+    }
+    static let bundles: [AppLanguage: Bundle] = {
+        var result = AppLanguage.allCases.reduce(into: [AppLanguage: Bundle]()) { result, language in
+            if let bundle = bundle(for: language) {
+                result[language] = bundle
+            }
+        }
+        if result[.english] == nil {
+            result[.english] = resources
+        }
+        return result
+    }()
     static func lookup(_ key: String, language: AppLanguage) -> String {
-        let fallback = bundles[.english]!.localizedString(forKey: key, value: key, table: nil)
-        return bundles[language]!.localizedString(forKey: key, value: fallback, table: nil)
+        lookup(key, language: language, bundles: bundles)
+    }
+    static func lookup(_ key: String, language: AppLanguage, bundles: [AppLanguage: Bundle]) -> String {
+        let fallback = bundles[.english]?.localizedString(forKey: key, value: key, table: nil) ?? key
+        return bundles[language]?.localizedString(forKey: key, value: fallback, table: nil) ?? fallback
     }
 }
 

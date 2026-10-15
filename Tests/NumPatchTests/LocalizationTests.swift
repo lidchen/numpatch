@@ -23,6 +23,26 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(size.resolved(in: .simplifiedChinese), "角落半径 · 20%")
     }
 
+    func testLookupHandlesEverySupportedLanguageWithoutCrashing() {
+        for language in AppLanguage.allCases {
+            XCTAssertFalse(Localization.lookup("关闭", language: language).isEmpty)
+        }
+    }
+
+    func testMissingLocalizationBundleFallsBackToEnglishOrKey() throws {
+        XCTAssertNil(Localization.bundle(for: .simplifiedChinese, pathForResource: { _ in nil }))
+
+        let english = try XCTUnwrap(Localization.bundles[.english])
+        XCTAssertEqual(
+            Localization.lookup("关闭", language: .simplifiedChinese, bundles: [.english: english]),
+            "Unassigned"
+        )
+        XCTAssertEqual(
+            Localization.lookup("未知字符串", language: .simplifiedChinese, bundles: [:]),
+            "未知字符串"
+        )
+    }
+
     func testBundledTranslationsHaveMatchingKeysAndPlaceholders() throws {
         let tables = try AppLanguage.allCases.map { language -> [String: String] in
             let url = try XCTUnwrap(Localization.bundles[language]?.url(forResource: "Localizable", withExtension: "strings"))
