@@ -32,7 +32,7 @@ private final class KeyboardEventTemplates {
 }
 
 // Driver-pushed frames: retain enough contacts to detect multitouch, never queue
-// frames or telemetry for the UI. No sampling/presentation timer runs.
+// frames for the UI. Only accepted taps can produce optional preview feedback.
 private let contactCallback: TouchCallback = { _, touches, count, _, _ in
     guard count >= 0, count <= 64 else { return }
     var contacts: [Contact] = []
@@ -63,16 +63,20 @@ final class Monitor: ObservableObject {
     static let shared = Monitor()
     @Published var layout = PadLayout.load() { didSet { layout.save(); configureEngine() } }
     @Published var tuning = RecognitionSettings.load() { didSet { tuning.save(); configureEngine() } }
-    @Published private(set) var numberMode = false
+    @Published private(set) var numberMode = false { didSet { updateFeedbackDelivery() } }
     @Published private(set) var starting = false
     @Published private(set) var running = false
     @Published private(set) var accessGranted = false
     @Published private(set) var calibrationReady = CalibrationStore.hasCurrentBootCalibration
     @Published var status: LocalizedText = "已暂停"
     @Published var shortcutStatus: LocalizedText = "⌃⌥⌘N"
-    @Published var calibrationOpen = false
+    @Published var calibrationOpen = false { didSet { updateFeedbackDelivery() } }
     @Published var calibrationStage: ClickCalibration.Kind?
     @Published var calibrationStatus: LocalizedText = ""
+    let feedback = InputFeedback()
+    private var previewVisible = false
+    @Published private(set) var shortcut = Shortcut.load()
+    @Published var shortcutError: LocalizedText?
     private var hotkey: GlobalHotkey?
     private var eventTap: CFMachPort?
     private var nativeButtonTap: CFMachPort?
@@ -97,8 +101,37 @@ final class Monitor: ObservableObject {
     }
     func refreshAccess() { accessGranted = AXIsProcessTrusted() && CGPreflightPostEventAccess() }
     func registerShortcut() {
-        hotkey = GlobalHotkey { [weak self] in self?.toggleNumberMode() }
-        if hotkey?.registered != true { shortcutStatus = "快捷键被占用，请通过菜单栏切换" }
+        hotkey = GlobalHotkey(shortcut: shortcut) { [weak self] in self?.toggleNumberMode() }
+        refreshShortcutStatus()
+    }
+    private func refreshShortcutStatus() {
+        shortcutStatus = hotkey?.registered == true ? LocalizedText(verbatim: shortcut.display) : "快捷键被占用，请通过菜单栏切换"
+    }
+    func beginShortcutRecording() { hotkey?.suspend(); shortcutError = nil }
+    func finishShortcutRecording(_ value: Shortcut?) {
+        if let value {
+            if !value.isValid { shortcutError = "请使用修饰键组合或功能键" }
+            else if hotkey?.replace(with: value) == true {
+                shortcut = value; value.save(); shortcutError = nil
+                refreshShortcutStatus(); return
+            } else { shortcutError = "快捷键不可用，已保留原快捷键" }
+        }
+        _ = hotkey?.replace(with: shortcut)
+        refreshShortcutStatus()
+    }
+    func resetShortcut() { finishShortcutRecording(.default) }
+    func setPreviewVisible(_ visible: Bool) {
+        previewVisible = visible; updateFeedbackDelivery()
+    }
+    private func updateFeedbackDelivery() {
+        let active = previewVisible && numberMode && !calibrationOpen
+        guard feedback.active != active else { return }
+        feedback.setActive(active)
+        let generation = feedback.generation
+        let handler: ((TapFeedback) -> Void)? = active ? { [weak feedback] hit in
+            DispatchQueue.main.async { feedback?.receive(hit, generation: generation) }
+        } : nil
+        TakeoverEngine.shared.setFeedbackHandler(ownPID: getpid(), handler: handler)
     }
     private func configureEngine() {
         TakeoverEngine.shared.configure(layout: layout, minimum: tuning.minimumMS / 1000,

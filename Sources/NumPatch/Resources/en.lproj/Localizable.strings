@@ -96,3 +96,13 @@
 "Required private API symbols are unavailable" = "Required private API symbols are unavailable";
 "No default multitouch trackpad found" = "No default multitouch trackpad found";
 "Could not start trackpad" = "Could not start trackpad";
+"关闭窗口" = "Close window";
+"请使用修饰键组合或功能键" = "Use a modifier combination or a function key.";
+"快捷键不可用，已保留原快捷键" = "Shortcut unavailable. The previous shortcut was kept.";
+"录制快捷键…" = "Record shortcut…";
+"请按下快捷键…" = "Press a shortcut…";
+"按 Esc 取消；可使用修饰键组合或功能键" = "Escape cancels. Use ⌘, ⌥, or ⌃, or a function key.";
+"恢复默认快捷键" = "Reset shortcut";
+"最近按键：{0}" = "Last key: {0}";
+"轻触触控板，查看按键和位置" = "Tap the trackpad to see the key and position";
+"关闭窗口后，可继续通过菜单栏或快捷键切换数字模式。\n不显示 Dock 图标；关闭数字模式后停止输入监听。" = "Close the window and keep using the menu bar or shortcut.\nNo Dock icon. Pausing number mode stops input monitoring.";

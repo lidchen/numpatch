@@ -16,7 +16,9 @@ Made for MacBook users and compact-keyboard setups: Blender navigation, precise 
 - **A simple nine-key grid.** Large 1–9 regions, with `0` on the bottom edge and `.` in the bottom-right corner by default.
 - **Eight optional extra keys.** Assign each corner and edge independently. Stretch edge strips or shrink them to small semicircles; adjust corner size. Unassigned areas remain part of the 1–9 grid.
 - **Keep system Tap to click enabled.** Number mode intercepts recognized one-finger taps. Two-finger secondary clicks keep the macOS right-click behavior.
-- **Pause with a shortcut.** Use **Control + Option + Command + N**, the menu bar, or the main window. Starts paused and pauses on sleep.
+- **Lives in the menu bar.** Close the window with **⌘W** or the close button; number mode keeps running. No Dock icon or ⌘Tab entry. Reopen the window from **Open NumPatch…** in its menu.
+- **Your own shortcut.** Defaults to **Control + Option + Command + N**. Record a modifier combination or function key in **Settings → Recognition → General**; conflicts keep the previous binding. Starts paused and pauses on sleep.
+- **Learn by tapping.** With the main window visible and number mode enabled, see the last key and its actual trackpad position. Practice inside NumPatch without typing into its controls. Closing, minimizing, or completely covering the window stops feedback delivery. No per-frame display loop runs.
 - **English and Simplified Chinese.** English is the default, regardless of system language. Switch instantly in **Settings → Recognition → General → Language**.
 - **No background touch sampling while paused.** Pausing stops trackpad callbacks and removes mouse event taps. Active input uses driver callbacks without a continuous UI refresh timer.
 
@@ -54,9 +56,9 @@ For now, build from source using the instructions below.
 2. Leave **System Settings → Trackpad → Tap to click** enabled. Enable the system's two-finger secondary-click gesture if you use it.
 3. Complete calibration: keep the pointer in the blue area, wait one second, then tap three times without pressing down. Physically click three times in the second step.
 4. Lift your fingers and enable number mode. Tap the corresponding trackpad region to send a key to the foreground app.
-5. Pause with **⌃⌥⌘N** when you need normal trackpad tapping. Closing the window keeps NumPatch in the menu bar; **Quit NumPatch** exits it.
+5. Pause with your shortcut (default **⌃⌥⌘N**) when you need normal trackpad tapping. **⌘W** or the close button hides the window and keeps NumPatch in the menu bar; **Quit NumPatch** exits it.
 
-Use **Edit layout…** for key assignments and zone sizes. Settings save automatically. Calibration is cached for the current device and boot session; restarting macOS or changing the trackpad can require calibration again.
+Use **Edit layout…** for key assignments and zone sizes. To change the shortcut, select **Record shortcut…**, press the combination, or press Escape to cancel. Leaving the recorder restores the previous shortcut. The menu icon shows a grid when enabled, a pause symbol when paused, and an ellipsis while starting. Settings save automatically. Calibration is cached for the current device and boot session; restarting macOS or changing the trackpad can require calibration again.
 
 ## Build and test
 

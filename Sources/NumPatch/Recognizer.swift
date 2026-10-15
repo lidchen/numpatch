@@ -16,6 +16,7 @@ struct GestureResult {
     let fingers: Int
     let ended: Double
     var isCustomRegion = false
+    var position: CGPoint = .zero
 }
 
 /// One classification for the whole contact sequence, until all fingers lift.
@@ -80,7 +81,8 @@ struct TapRecognizer {
             key: anchorCustomBoundary ? layout.key(x: origin.x, y: origin.y)
                 : layout.key(x: (origin.x + end.x) / 2, y: (origin.y + end.y) / 2),
             duration: elapsed, movement: maxMovement, fingers: maxFingers, ended: time,
-            isCustomRegion: startsInCustomRegion)
+            isCustomRegion: startsInCustomRegion,
+            position: CGPoint(x: origin.x, y: origin.y))
         reset()
         return result
     }

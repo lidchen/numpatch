@@ -51,3 +51,49 @@ struct TrackpadPreview: View {
         }
     }
 }
+
+
+/// Only this small view observes accepted taps. The rest of the window and the
+/// menu bar are not invalidated by input feedback.
+struct LiveTrackpadPreview: View {
+    let layout: PadLayout
+    @ObservedObject var feedback: InputFeedback
+    let numberMode: Bool
+    @ObservedObject private var localization = Localization.shared
+    var body: some View {
+        TrackpadPreview(layout: layout)
+            .overlay {
+                GeometryReader { geometry in
+                    if let hit = feedback.latest {
+                        Circle().fill(Color.accentColor.opacity(0.20))
+                            .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
+                            .overlay(Text(KeyOutput.previewLabel(hit.key))
+                                .font(.system(size: 18, weight: .bold, design: .monospaced)))
+                            .frame(width: 42, height: 42)
+                            .position(x: min(geometry.size.width - 21, max(21, hit.position.x * geometry.size.width)),
+                                      y: min(geometry.size.height - 21, max(21, (1 - hit.position.y) * geometry.size.height)))
+                        Circle().fill(Color.accentColor).frame(width: 7, height: 7)
+                            .position(x: hit.position.x * geometry.size.width,
+                                      y: (1 - hit.position.y) * geometry.size.height)
+                    }
+                }.allowsHitTesting(false)
+            }
+            .overlay(alignment: .top) {
+                if let hit = feedback.latest {
+                    Text(L("最近按键：\(KeyOutput.displayLabel(hit.key))"))
+                        .font(.system(.callout, design: .monospaced).weight(.semibold))
+                        .padding(.horizontal, 12).padding(.vertical, 6)
+                        .background(.regularMaterial, in: Capsule()).padding(8)
+                        .allowsHitTesting(false)
+                } else if numberMode {
+                    Text(L("轻触触控板，查看按键和位置"))
+                        .font(.caption).padding(.horizontal, 12).padding(.vertical, 6)
+                        .background(.regularMaterial, in: Capsule()).padding(8)
+                        .allowsHitTesting(false)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L("按键布局"))
+            .accessibilityValue(feedback.latest.map { L("最近按键：\(KeyOutput.displayLabel($0.key))") } ?? "")
+    }
+}

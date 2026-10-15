@@ -54,7 +54,18 @@ struct PreferencesView: View {
                 Picker(L("语言"), selection: $localization.language) {
                     ForEach(AppLanguage.allCases) { Text($0.title).tag($0) }
                 }
-                LabeledContent(L("快捷键"), value: monitor.shortcutStatus.text)
+                HStack {
+                    Text(L("快捷键"))
+                    Spacer()
+                    Text(monitor.shortcutStatus.text).font(.system(.body, design: .monospaced))
+                    ShortcutRecorder(monitor: monitor).fixedSize()
+                }.accessibilityElement(children: .contain)
+                HStack {
+                    Text(L("按 Esc 取消；可使用修饰键组合或功能键")).font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Button(L("恢复默认快捷键")) { monitor.resetShortcut() }
+                }
+                if let error = monitor.shortcutError { Text(error.text).foregroundStyle(.orange) }
                 Text(L("数字模式关闭后停止监听。设置窗口内保留普通鼠标点击。"))
                     .foregroundStyle(.secondary)
             }
@@ -88,7 +99,7 @@ struct PreferencesView: View {
             Text("NumPatch").font(.system(size: 25, weight: .semibold, design: .rounded))
             Text(L("版本 0.3.0")).foregroundStyle(.secondary)
             Text(L("为触控板添加九键数字和可自定义的边角按键。"))
-            Text(L("关闭窗口后，可继续通过菜单栏或快捷键切换数字模式。\n关闭数字模式后，停止触控与鼠标事件监听。"))
+            Text(L("关闭窗口后，可继续通过菜单栏或快捷键切换数字模式。\n不显示 Dock 图标；关闭数字模式后停止输入监听。"))
                 .multilineTextAlignment(.center).foregroundStyle(.secondary).lineSpacing(5)
             Spacer().frame(height: 20)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -56,6 +56,15 @@ final class TakeoverEngine {
     private var frontPID: Int32 = 0
     private var candidatePID: Int32 = 0
     private var configuration = PadLayout()
+    private var feedbackHandler: ((TapFeedback) -> Void)?
+    private var feedbackPID: Int32 = 0
+
+    /// The handler only enqueues a main-thread update; never calls the engine.
+    /// Removed completely when the preview is closed, occluded, or paused.
+    func setFeedbackHandler(ownPID: Int32, handler: ((TapFeedback) -> Void)?) {
+        lock.lock(); defer { lock.unlock() }
+        feedbackPID = ownPID; feedbackHandler = handler
+    }
 
     func configure(layout: PadLayout, minimum: Double, maximum: Double, movement: Double) {
         lock.lock(); defer { lock.unlock() }
@@ -74,6 +83,8 @@ final class TakeoverEngine {
             lastGesture = result
             if result.kind == "轻触候选" {
                 candidate = result; candidatePID = frontPID; candidateEmitted = false
+                // Practice in our own window without injecting keys into its UI.
+                if frontPID == feedbackPID { feedbackHandler?(TapFeedback(result)) }
             }
         }
         return result
@@ -158,6 +169,7 @@ final class TakeoverEngine {
               candidatePID > 0, candidatePID == frontPID, candidatePID != ownPID,
               KeyOutput.codes[tap.key] != nil else { return nil }
         candidateEmitted = true
+        feedbackHandler?(TapFeedback(tap))
         return (tap.key, candidatePID)
     }
     /// The driver timestamp can describe an earlier point in the touch sequence.
@@ -210,6 +222,7 @@ final class TakeoverEngine {
             if candidateEmitted {
                 return (true, nil, false, "本次触点已补发按键，拦截迟到的重复轻触点击")
             }
+            feedbackHandler?(TapFeedback(tap))
             return (true, tap.key, false, explain ? String(format: "单指轻触已拦截 → %@；事件距离开 %.1f ms，回调距离开 %.1f ms", tap.key, (time - tap.ended) * 1000, (received - tap.ended) * 1000) : "")
         }
         recognizer.markClick(); candidate = nil

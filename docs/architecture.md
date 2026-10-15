@@ -14,7 +14,7 @@
 
 ## UI, preferences, and overhead
 
-Normal input has no per-frame UI updates, pressure display, counters, touch/key files, or permanent UI refresh timer. Preferences and engine configuration update only when settings change. Optional `--diagnostics` enables limited unified-log messages.
+Normal input has no per-frame UI updates, pressure display, counters, touch/key files, or permanent UI refresh timer. When the main window is visible and number mode is enabled, an optional handler publishes one key/position update per accepted output. Own-window practice publishes recognized taps without injecting keys into the UI. Closing, minimizing, occluding, or displaying a settings/calibration sheet removes the handler; a generation check rejects already queued UI deliveries. Only the preview observes this state. Preferences and engine configuration update only when settings change. Optional `--diagnostics` enables limited unified-log messages.
 
 The paused calibration badge is a cached hint for the current boot. It does not authorize output: enabling checks device identity, boot session, sample validity, and filtering capability.
 
@@ -31,3 +31,9 @@ The wizard collects three taps and three physical presses only inside its target
 The private touch ABI is system- and device-dependent. Unit tests cannot establish compatibility with every trackpad, tap-drag setting, external mouse, or target application. Real hardware testing remains necessary. Local development signing is not Developer ID distribution signing or notarization.
 
 API references: [event tap options](https://developer.apple.com/documentation/coregraphics/cgeventtapoptions), [session event tap](https://developer.apple.com/documentation/coregraphics/cgeventtaplocation/cgsessioneventtap). Private ABI attribution is in [THIRD_PARTY_LICENSES.txt](../THIRD_PARTY_LICENSES.txt).
+
+## Menu bar lifecycle and shortcuts
+
+`LSUIElement` and the accessory activation policy keep NumPatch out of the Dock and app switcher. A single retained AppKit window hosts SwiftUI; closing it never disables background number mode. Window delegate visibility/occlusion notifications control feedback delivery. Command-W routes to the same close action, and the menu bar reuses the window when opened again.
+
+A Codable shortcut stores a virtual keycode, Carbon modifier mask, and display label. Recording is limited to a local first responder, with the existing hotkey suspended until completion or cancellation. Normal replacement registers the new combination before releasing the old one; failed recording restores the previous binding. Escape, focus loss, window closing, and view teardown end recording. Only the registered combination is observed globally, without a global keyboard-event monitor.
