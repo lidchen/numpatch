@@ -30,12 +30,30 @@ final class Localization: ObservableObject {
            let bundle = Bundle(url: url) { return bundle }
         return Bundle.module
     }()
-    static let bundles: [AppLanguage: Bundle] = Dictionary(uniqueKeysWithValues: AppLanguage.allCases.map {
-        ($0, Bundle(path: resources.path(forResource: $0.rawValue, ofType: "lproj")!)!)
-    })
+    private static func bundle(for language: AppLanguage) -> Bundle? {
+        let canonical = Locale(identifier: language.rawValue).identifier
+        let candidates = [language.rawValue, canonical, canonical.replacingOccurrences(of: "_", with: "-"), canonical.replacingOccurrences(of: "-", with: "_")]
+        for candidate in candidates {
+            guard let path = resources.path(forResource: candidate, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            return bundle
+        }
+        return nil
+    }
+    static let bundles: [AppLanguage: Bundle] = {
+        var bundles = AppLanguage.allCases.reduce(into: [AppLanguage: Bundle]()) { result, language in
+            if let bundle = bundle(for: language) {
+                result[language] = bundle
+            }
+        }
+        if bundles[.english] == nil {
+            bundles[.english] = resources
+        }
+        return bundles
+    }()
     static func lookup(_ key: String, language: AppLanguage) -> String {
-        let fallback = bundles[.english]!.localizedString(forKey: key, value: key, table: nil)
-        return bundles[language]!.localizedString(forKey: key, value: fallback, table: nil)
+        let fallback = bundles[.english]?.localizedString(forKey: key, value: key, table: nil) ?? key
+        return bundles[language]?.localizedString(forKey: key, value: fallback, table: nil) ?? fallback
     }
 }
 
