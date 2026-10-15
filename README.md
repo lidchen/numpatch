@@ -58,7 +58,7 @@ For now, build from source using the instructions below.
 4. Lift your fingers and enable number mode. Tap the corresponding trackpad region to send a key to the foreground app.
 5. Pause with your shortcut (default **⌃⌥⌘N**) when you need normal trackpad tapping. **⌘W** or the close button hides the window and keeps NumPatch in the menu bar; **Quit NumPatch** exits it.
 
-Use **Edit layout…** for key assignments and zone sizes. To change the shortcut, select **Record shortcut…**, press the combination, or press Escape to cancel. Leaving the recorder restores the previous shortcut. The menu icon shows a grid when enabled, a pause symbol when paused, and an ellipsis while starting. Settings save automatically. Calibration is cached for the current device and boot session; restarting macOS or changing the trackpad can require calibration again.
+Use **Edit layout…** for key assignments and zone sizes. To change the shortcut, select **Record shortcut…**, press the combination, or press Escape to cancel. Leaving the recorder restores the previous shortcut. The menu icon shows a grid when enabled, the same grid dimmed when paused, and an ellipsis while starting. Settings save automatically. Calibration is cached for the current device and boot session; restarting macOS or changing the trackpad can require calibration again.
 
 ## Build and test
 

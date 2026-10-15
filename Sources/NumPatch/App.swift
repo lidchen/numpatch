@@ -16,10 +16,27 @@ struct NumPatchApp: App {
             Divider()
             Button(L("退出NumPatch")) { NSApp.terminate(nil) }.keyboardShortcut("q")
         } label: {
-            Image(systemName: monitor.starting ? "ellipsis.circle" : monitor.numberMode ? "square.grid.3x3.fill" : "pause.circle")
+            Image(nsImage: monitor.starting ? MenuBarIcons.starting : monitor.numberMode ? MenuBarIcons.enabled : MenuBarIcons.paused)
                 .accessibilityLabel(monitor.numberMode ? L("数字模式已开启") : L("数字模式已暂停"))
         }
         .commands { CommandGroup(replacing: .newItem) {} }
+    }
+}
+
+/// Cache template images with alpha baked in: status items can ignore SwiftUI
+/// foreground/opacity modifiers. Template rendering adapts to light/dark menus.
+private enum MenuBarIcons {
+    static let enabled = grid(opacity: 1)
+    static let paused = grid(opacity: 0.4)
+    static let starting = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: nil)!
+    private static func grid(opacity: CGFloat) -> NSImage {
+        let symbol = NSImage(systemSymbolName: "square.grid.3x3.fill", accessibilityDescription: nil)!
+        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { bounds in
+            symbol.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: opacity)
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 }
 
